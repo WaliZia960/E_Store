@@ -1,0 +1,273 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+
+        <div class="card-body container">
+            <h5 class="card-title" id="Title_Add">Add Team Member</h5>
+            <input type="hidden" id="Txt_TMember_ID" value="" />
+            <h5 class="card-title" type="hidden" id="Title_Edit">Edit Team Member</h5>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_Name" class="form-control" placeholder="Member Name" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_Job_Title" class="form-control" placeholder="Member Job Title" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="form-floating">
+                <textarea class="form-control" id="Txt_TMem_Job_Desc" placeholder="Member Job Description"></textarea>
+            </div>
+            <br />
+
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_Facebook" class="form-control" placeholder="Member Facebook" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_Twitter" class="form-control" placeholder="Member Twitter" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_gmail" class="form-control" placeholder="Member Email" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_LinkedIn" class="form-control" placeholder="Member Linked In" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_TMem_Skype" class="form-control" placeholder="Member Skype" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="input_Image" aria-describedby="inputGroupFileAddon01">
+                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="Btn_Add_TM">Add Member</button>
+            <button class="btn btn-primary" id="Btn_Edit_TM">Edit Member</button>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="container">
+            <br />
+            <br />
+            <div class="table-responsive">
+                <table class="table table-bordered" id="Tbl_Team">
+                    <thead>
+                        <tr>
+
+                            <th>Name</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Facebook</th>
+                            <th>Twitter</th>
+                            <th>Email</th>
+                            <th>Linked In</th>
+                            <th>Skype</th>
+                            <th>Image</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <br />
+                <br />
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>  
+
+
+    $(document).ready(function () {
+        FetchProject();
+    });
+
+    $("#Btn_Edit_TM").hide();
+    $("#Title_Edit").hide();
+
+    $("#Btn_Add_TM").click(function () {
+
+        var name = $("#Txt_TMem_Name").val();
+        var job_t = $("#Txt_TMem_Job_Title").val();
+        var job_d = $("#Txt_TMem_Job_Desc").val();
+        var facebook = $("#Txt_TMem_Facebook").val();
+        var twitter = $("#Txt_TMem_Twitter").val();
+        var email = $("#Txt_TMem_gmail").val();
+        var linkedin = $("#Txt_TMem_LinkedIn").val();
+        var skype = $("#Txt_TMem_Skype").val();
+        var image = $("#input_Image").get(0).files[0];
+
+        var fd = new FormData();
+
+        fd.append("name", name);
+        fd.append("job_t", job_t);
+        fd.append("job_d", job_d);
+        fd.append("facebook", facebook);
+        fd.append("twitter", twitter);
+        fd.append("email", email);
+        fd.append("linkedin", linkedin);
+        fd.append("skype", skype);
+        fd.append("image", image);
+
+        
+        $.ajax({
+            url: '../Team/AddMember',
+            type: "POST",
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data == "Added") {
+                    alert("Team Member created");
+                    FetchProject();
+                }
+                if (data == "present") {
+                    alert("User ALready Present");
+                }
+                if (data == "empty") {
+                    alert("Kindly Fill out all feilds");
+                }
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+
+    });
+
+    function FetchProject() {
+        $.ajax({
+            url: '../Team/fetchData',
+            success: function (data) {
+
+                console.log(data);
+                // delete previous
+                $('#Tbl_Team').DataTable().destroy();
+                // add new one
+                $('#Tbl_Team').DataTable({
+                    data: data,
+                    columns: [
+                        
+                        {
+                            'data': 'Name'
+                        },
+                        {
+                            'data': 'Job_Title', render: function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            'data': 'Job_Description'
+                        },
+                        {
+                            'data': 'Facebook_Url'
+                        },
+                        {
+                            'data': 'Twitter_Url'
+                        },
+                        {
+                            'data': 'Email'
+                        },
+                        {
+                            'data': 'LinkedIn_Url'
+                        },
+                        {
+                            'data': 'Skype_Url'
+                        },
+                        {
+                            'data': 'Image', render: function (data, type, row) {
+                                return '<img src="../Photo/' + data + '"  width="50" height="50">';
+                            }
+                        },
+                        {
+                            data: null, render: function (data, type, row) {
+                                return '<button class="btn btn-primary" onclick="delete_Member(' + row.id + ');">Delete</button>'
+                            }
+                        }
+                        //{
+                        //    data: null, render: function (data, type, row) {
+                        //        return '<button class="btn btn-primary" onclick=\'Update_Catagory( "' + row.Id + '" , "' + row.Name + '")\'>Edit</button>'
+                        //    }
+                        //}
+                    ]
+                });
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    }
+
+    function delete_Member(id) {
+        $.ajax({
+            url: "../Team/DeleteMember",
+            data: {
+                id: id
+            },
+            success: function (data) {
+                alert("Deleted");
+                FetchProject();
+            }, error: function (er) {
+                alert(er);
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>

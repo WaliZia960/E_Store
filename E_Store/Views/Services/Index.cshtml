@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+
+        <div class="card-body container">
+            <h5 class="card-title" id="Title_Add">Add Service</h5>
+            <input type="hidden" id="Txt_Service_ID" value="" />
+            <h5 class="card-title" id="Title_Edit">Edit Service</h5>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_Service_Title" class="form-control" placeholder="Service Title" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+
+            <div class="form-floating">
+                <textarea class="form-control" id="Txt_Service_Description" placeholder="Add Service Description"></textarea>
+            </div>
+            <br />
+
+            <button class="btn btn-primary" id="Btn_Add_Service">Add Service</button>
+            <button class="btn btn-primary" id="Btn_Edit_Service">Edit Service</button>
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body container">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="Tbl_Services">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Service Description</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            </div>
+        </div>
+</div>
+
+<script>
+
+    $("#Btn_Edit_Service").hide();
+    $("#Title_Edit").hide();
+
+    $(document).ready(function () {
+        fetchData();
+    });
+
+    $("#Btn_Add_Service").click(function () {
+        var Service_Title = $("#Txt_Service_Title").val();
+        var Service_Description = $("#Txt_Service_Description").val();
+        if (Service_Title != "" && Service_Description != "") {
+            //alert(Service_Title + " : " + Service_Description);
+
+            $.ajax({
+                url: "../Services/AddService",
+                data: {
+                    Title: Service_Title,
+                    Description: Service_Description
+                },
+                success: function (data) {
+                    fetchData();
+                }, error: function (e) {
+                    console.log(e);
+                }
+            });
+        } else {
+            alert("Please Add Values");
+        }
+    });
+    $("#Btn_Edit_Service").click(function () {
+
+        var name = $("#Txt_Service_Title").val();
+        var description = $("#Txt_Service_Description").val();
+        var Id = $("#Txt_Service_ID").val();
+        $.ajax({
+            url: "../Services/UpdateService",
+            data: {
+                id : Id,
+                name: name,
+                description: description
+            }, success: function (data) {
+                fetchData();
+                $("#Btn_Edit_Service").hide();
+                $("#Title_Edit").hide();
+
+                $("#Title_Add").show();
+                $("#Btn_Add_Service").show();
+
+
+            }, error: function (e) {
+                console.log(e);
+            }
+        });
+    });
+
+
+    function fetchData() {
+        $.ajax({
+            url: "../Services/fetchData",
+            success: function (data) {
+
+               // console.log(data);
+                // delete previous
+                $('#Tbl_Services').DataTable().destroy();
+                // add new one
+                $('#Tbl_Services').DataTable({
+                    data: data,
+                    columns: [
+                        {
+                            'data': 'Service_Name', render: function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            'data': 'Service_Description', render: function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            data: null, render: function (data, type, row) {
+                                return '<button class="btn btn-primary" onclick=\'Update_Service( "' + row.Service_Id + '" , "' + row.Service_Name + '", "' + row.Service_Description + '")\'>Edit</button>'
+                            }
+                        },
+                        {
+                            data: null, render: function (data, type, row) {
+                                return '<button class="btn btn-primary" onclick="delete_Service(' + row.Service_Id + ');">Delete</button>'
+                            }
+                        }
+
+                    ]
+                });
+            }
+        });
+    }
+    function Update_Service(id, name, description) {
+        $("#Title_Add").hide();
+        $("#Btn_Add_Service").hide();
+
+        $("#Txt_Service_Title").val(name);
+        $("#Txt_Service_Description").val(description);
+        $('#Txt_Service_ID').val(id);
+        $("#Title_Edit").show();    
+        $("#Btn_Edit_Service").show();
+    }
+    function delete_Service(id) {
+        $.ajax({
+            url: "../Services/DeleteService",
+            data: {
+                id: id
+            }, success: function (data) {
+                fetchData();
+            }, error: function (e) {
+                console.log(e);
+            }
+
+        });
+    }
+
+</script>

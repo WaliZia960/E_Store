@@ -1,0 +1,202 @@
+﻿@{
+    ViewBag.Title = "Index";
+    BlogEntities1 blogEntities = new BlogEntities1();
+}
+
+<!------ ADD PROJECT FORM-------->
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+
+        <div class="card-body container">
+            <h5 class="card-title" id="Title_Add">Add Project</h5>
+            <h5 class="card-title" id="Title_Edit">Add Project</h5>
+
+            <div class="input-group mb-3">
+                <input type="text" id="Txt_Title" class="form-control" placeholder="Project Title" aria-label="Title" aria-describedby="basic-addon1">
+            </div>
+            <br />
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+
+                </div>
+                <select class="custom-select" id="Cb_Catagory">
+                    <option selected>Choose Catagory</option>
+                    @{
+                        foreach (var catagory_type in blogEntities.Tbl_ProjectCategory.ToList())
+                        {
+                            <option value="@catagory_type.Id">@catagory_type.Name</option>
+                        }
+                    }
+                </select>
+
+            </div>
+            <br />
+
+            <div class="form-floating">
+                <textarea class="form-control" id="Txt_Body" placeholder="Add Project Description"></textarea>
+            </div>
+            <br />
+
+
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="input_Image" aria-describedby="inputGroupFileAddon01">
+                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="Btn_Add_Blog">Add Project</button>
+            <button class="btn btn-primary" id="Btn_Edit_Blog">Edit Project</button>
+
+        </div>
+    </div>
+
+</div>
+
+<!------ PROJECT List-------->
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="container">
+            <br />
+            <br />
+            <div class="table-responsive">
+                <table class="table table-bordered" id="Tbl_Project">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Catagory</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <br />
+                <br />
+            </div>
+        </div>
+
+        </div>
+
+</div>
+
+<script>
+    $("#Btn_Add_Blog").click(function () {
+        var Title = $("#Txt_Title").val();
+        var Catagory = $("#Cb_Catagory").val();
+        var Blog_Body = $("#Txt_Body").val();
+        var Featured_Image = $('#input_Image').get(0).files[0];
+        //alert(Title + " : " + Catagory + " : " + Blog_Body + " : " + Featured_Image);
+        var formData = new FormData();
+        formData.append("name", Title);
+        formData.append("cId", Catagory);
+        formData.append("desc", Blog_Body);
+        formData.append("file", Featured_Image);
+
+        $.ajax({
+            url: '../Project/AddProject',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data == "created") {
+                    alert("Project created");
+                    FetchProject();
+                }
+                else {
+                    alert("Project not created");
+                }
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    });
+
+    $("#Btn_Edit_Blog").hide();
+    $("#Title_Edit").hide();
+
+    $(document).ready(function () {
+        FetchProject();
+    });
+
+    function FetchProject() {
+        $.ajax({
+            url: '../Project/FetchProject',
+            success: function (data) {
+
+                console.log(data);
+                // delete previous
+                $('#Tbl_Project').DataTable().destroy();
+                // add new one
+                $('#Tbl_Project').DataTable({
+                    data: data,
+                    columns: [
+                        {
+                            'data': 'Id'
+                        },
+                        {
+                            'data': 'P_Name', render: function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            'data': 'CategoryName', render: function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            'data': 'P_Desc'
+                        },
+                        {
+                            'data': 'Image', render: function (data, type, row) {
+                                return '<img src="../Photo/' + data + '"  width="50" height="50">';
+                            }
+                        }, 
+                        {
+                            data: null, render: function (data, type, row) {
+                                return '<button class="btn btn-primary" onclick="delete_Project(' + row.Id + ');">Delete</button>'
+                            }
+                        }
+                        //{
+                        //    data: null, render: function (data, type, row) {
+                        //        return '<button class="btn btn-primary" onclick=\'Update_Catagory( "' + row.Id + '" , "' + row.Name + '")\'>Edit</button>'
+                        //    }
+                        //}
+                    ]
+                });
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    }
+
+    function delete_Project(Id) {
+        $.ajax({
+            url: "../Project/deleteProject",
+            data: {
+                id: Id
+            },
+            success: function (data) {
+                if (data == "deleted") {
+                    FetchProject();
+                    alert("deleted");
+                } else {
+                    alert("Some issue occoured");
+                }
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    }
+</script>

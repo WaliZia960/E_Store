@@ -1,0 +1,178 @@
+﻿@{
+    ViewBag.Title = "Category";
+    BlogEntities1 blogEntities = new BlogEntities1();
+}
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+<!-- Jquery Cdn-->
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+<div class="container">
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="container">
+            <br />
+            <br />
+            <h5 class="card-title" id="Title_Add">Add Catagory</h5>
+            <input type="hidden" id="Id" />
+            <div class="input-group mb-3">
+                <input type="text" id="TxtCatagory" class="form-control" placeholder="Catagory" aria-label="Username" aria-describedby="basic-addon1">
+            </div>
+            <button class="btn btn-primary" type="button" id="Btn_Add_Catagory">Add Category +</button>
+            <button class="btn btn-primary" type="button" id="Btn_Update_Catagory" style="display:none">Update Category</button>
+
+            <br />
+            <br />
+        </div>
+    </div>
+</div>
+
+        
+        <div class="container">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="container">
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="Tbl_catagory">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>Delete</th>
+                                    <th>Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+
+            // AFTER ALL THE FETCHING
+            $(document).ready(function () {
+                FetchCategory();
+            });
+
+            function FetchCategory() {
+                $.ajax({
+                    url: '../Project/FetchCategory',
+                    success: function (data) {
+
+                        // console.log(data);
+                        // delete previous
+                        $('#Tbl_catagory').DataTable().destroy();
+                        // add new one
+                        $('#Tbl_catagory').DataTable({
+                            data: data,
+                            columns: [
+                                {
+                                    'data': 'Id'
+                                },
+                                {
+                                    'data': 'Name', render: function (data, type, row) {
+                                        return data + " Category " + row.Id;
+                                    }
+                                },
+                                {
+                                    data: null, render: function (data, type, row) {
+                                        return '<button class="btn btn-primary" onclick="delete_Catagory(' + row.Id + ');">Delete</button>'
+                                    }
+                                },
+                                {
+                                    data: null, render: function (data, type, row) {
+                                        return '<button class="btn btn-primary" onclick=\'Update_Catagory( "' + row.Id + '" , "' + row.Name + '")\'>Edit</button>'
+                                    }
+                                }
+                            ]
+                        });
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            }
+
+            function delete_Catagory(Id) {
+                $.ajax({
+                    url: '../Project/Delete_Catagory',
+                    data: {
+                        id: Id
+                    },
+                    success: function (data) {
+                        alert(data);
+                        FetchCategory();
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            }
+
+
+            function Update_Catagory(Id, Name) {
+                //console.log(Id);
+
+                $('#Btn_Add_Catagory').hide();
+                $('#Btn_Update_Catagory').show();
+                $('#Id').val(Id);
+                $('#TxtCatagory').val(Name);
+            }
+
+            $("#Btn_Add_Catagory").click(function () {
+                $.ajax({
+                    url: '../Project/AddCategory',
+                    data: {
+                        name: $("#TxtCatagory").val()
+                    },
+                    success: function (data) {
+                        if (data == "exist") {
+                            alert("Catagory Already Exists");
+                        } else if (data == "created") {
+                            alert("Added Successfully");
+                            FetchCategory();
+                        } else {
+                            alert("Please add text in catagory input feild");
+                        }
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            });
+
+            $('#Btn_Update_Catagory').click(function () {
+                $.ajax({
+                    url: '../Project/UpdateCategory',
+                    data: {
+                        name: $("#TxtCatagory").val(),
+                        Id: $('#Id').val()
+                    },
+                    success: function (data) {
+                        if (data == "notexist") {
+                            alert("Catagory not Exists");
+                        } else if (data == "updated") {
+                            alert("Updated Successfully");
+                            FetchCategory();
+                            $('#Btn_Add_Catagory').show();
+                            $('#Btn_Update_Catagory').hide();
+                            $("#TxtCatagory").val('');
+                        } else {
+                            alert("Please add text in catagory input feild");
+                        }
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            });
+        </script>

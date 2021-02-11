@@ -1,0 +1,195 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+    Layout = null;
+    BlogEntities1 dbObj = new BlogEntities1();
+}
+
+
+<!DOCTYPE html>
+<!--[if IE 8 ]><html class="no-js oldie ie8" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="no-js oldie ie9" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+
+    <!--- basic page needs
+    ================================================== -->
+    <meta charset="utf-8">
+    <title>Some Title</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- mobile specific metas
+    ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- CSS
+    ================================================== -->
+    <link rel="stylesheet" href="~/Content/css/base.css">
+    <link rel="stylesheet" href="~/Content/css/vendor.min.css">
+    <link rel="stylesheet" href="~/Content/css/main.css">
+
+    <!-- script
+    ================================================== -->
+    <script src="~/Content/js/modernizr.js"></script>
+
+    <!-- favicons
+     ================================================== -->
+    <link rel="shortcut icon" href="~/favicon.ico">
+
+</head>
+
+<body>
+
+
+    <!-- contact
+    ================================================== -->
+    <section id="contact">
+
+        <div class="row section-head">
+
+            <div class="twelve columns">
+
+                <h1>Register<span>.</span></h1>
+
+                <hr />
+
+            </div>
+
+        </div> <!-- end section-head -->
+
+        <div class="row">
+
+            <div id="contact-form" class="six columns tab-whole left">
+
+                <!-- form -->
+                <form name="contactForm" id="Regsiter_Form">
+                    <fieldset>
+
+                        <div class="group">
+                            <input name="contactName" type="text" id="Txt_Username" placeholder="Username" value="" minLength="2" required />
+                        </div>
+
+                        <div>
+                            <input name="contactEmail" type="email" id="Txt_Email" placeholder="Email" value="" required />
+                        </div>
+
+                        <div>
+                            <select id="St_user_role">
+                                <option selected>Select Any One</option>
+                                @{
+                                    foreach (var usertype in dbObj.Tbl_Roles.ToList())
+                                    {
+                                        <option value="@usertype.Role_Name">@usertype.Role_Name</option>
+                                    }
+                                }
+                                </select>
+                        </div>
+
+                        <div>
+                            <input name="contactpwd" type="password" id="PasswordTxt" placeholder="Password" value="" required />
+                        </div>
+
+                        <div>
+                            <input name="contactcpwd" type="password" id="CPasswordTxt" placeholder="Confirm Password" value="" required />
+                        </div>
+
+                        <div>
+                            <button class="submitform" type="button" id="Btn_Regsiter">Regsiter</button>
+                            <div id="submit-loader">
+                                <div class="text-loader">Sending...</div>
+                                <div class="s-loader">
+                                    <div class="bounce1"></div>
+                                    <div class="bounce2"></div>
+                                    <div class="bounce3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </form> <!-- Form End -->
+                <!-- contact-warning -->
+                <div id="message-warning"></div>
+                <!-- contact-success -->
+                <div id="message-success">
+                    <i class="icon-ok"></i>Your message was sent, thank you!<br />
+                </div>
+
+            </div>
+
+            <div class="six columns tab-whole right">
+
+                <p class="lead">
+                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+
+                    <h3 class="address">Come Visit</h3>
+
+                <p>
+                    1600 Amphitheatre Parkway<br>
+                    Mountain View, CA<br>
+                    94043 US
+                </p>
+
+                <h3>Contact Numbers:</h3>
+                <p>
+                    Phone: (000) 555 1212<br>
+                    Mobile: (000) 555 0100<br>
+                    Fax: (000) 555 0101
+                </p>
+
+            </div>
+
+        </div> <!-- end row -->
+
+    </section>  <!-- end contact -->
+    <!-- Java Script
+    ================================================== -->
+    <script src="~/Content/js/jquery-1.11.3.min.js"></script>
+    <script src="~/Content/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/Content/js/jquery.flexslider-min.js"></script>
+    <script src="~/Content/js/jquery.waypoints.min.js"></script>
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+    <script src="~/Content/js/jquery.fittext.js"></script>
+    <script src="~/Content/js/jquery.placeholder.min.js"></script>
+    <script src="~/Content/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/Content/js/main.js"></script>
+
+    <script>
+        
+        $("#Btn_Regsiter").click(function () {
+            
+            var Txt_Username = $('#Txt_Username').val();
+            var Txt_Email = $('#Txt_Email').val();
+            var St_user_role = $('#St_user_role').val();
+            var PasswordTxt = $('#PasswordTxt').val();
+            var CPasswordTxt = $('#CPasswordTxt').val();
+
+            
+            $.ajax({
+                url: '../Register/Create_New_User',
+                data: {
+                    username: Txt_Username,
+                    email: Txt_Email,
+                    user_role: St_user_role,
+                    password: PasswordTxt,
+                    CPassword: CPasswordTxt
+                },
+                success: function (data) {
+                    alert(data);
+                    //$("body").empty();
+                    //$("body").append(data);
+                },
+                error: function (e) {
+
+                    console.log(e);
+                }
+            });
+        });
+
+        
+    </script>
+</body>
+
+</html>
